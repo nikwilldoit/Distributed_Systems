@@ -1,26 +1,31 @@
 import java.io.IOException;
+import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static java.lang.System.exit;
 
 public class RandomNumberGenerator {
 
 
-    private static double buffer[];
+    private static LinkedList<Double> randomNumbersQueue = new LinkedList<Double>();
+    private static Lock randomNumbersLock = new ReentrantLock();
 
-
-     public static void main(String[] args) {
+    public static void main(String[] args) {
         validateInput(args);
         int bufferSize = Integer.parseInt(args[0]);
         int port = Integer.parseInt(args[1]);
         initializeBuffer(bufferSize);
 
 
-     }
+    }
 
-     private static void validateInput(String args[]) {
+     private static void validateInput(String[] args) {
          if (args.length != 2) {
              System.out.println("Usage:  RandomNumberGenerator <Buffer_Size> <Port>");
              System.out.println("Buffer_Size: The size of the buffer containing the random integers.The buffer size must be an integer greater than 100.");
@@ -49,11 +54,41 @@ public class RandomNumberGenerator {
      }
 
      private static void initializeBuffer(int bufferSize) {
-         buffer = new double[bufferSize];
          for (int i = 0; i < bufferSize; i++) {
-             buffer[i] = Math.random();
+             randomNumbersQueue.addLast(new Random().nextDouble());
          }
      }
+
+    class ResponseThread extends Thread {
+
+        void run(Socket socket) {
+            Double randomNumber;
+            randomNumbersLock.lock();
+            if(!randomNumbersQueue.isEmpty()){
+                randomNumber = randomNumbersQueue.removeFirst();
+            } else {
+                //fill numbers
+                randomNumber = randomNumbersQueue.removeFirst();
+            }
+            randomNumbersLock.unlock();
+            try {
+                OutputStream output = socket.getOutputStream();
+                String number = String.valueOf(randomNumber);
+                output.write(number.getBytes());
+            } catch (IOException e) {
+                System.out.println("Error could not send append data to output stream.");
+                throw new RuntimeException(e);
+            }
+            try {
+                socket.close();
+            } catch (IOException e) {
+                System.out.println("Error could not close socket.");
+            }
+        }
+    }
+
+
+
 
 
      void initializeServer(int port){
@@ -62,9 +97,10 @@ public class RandomNumberGenerator {
              System.out.println("Server started. Waiting for a client...");
 
              while(true) {
-                 Socket socket = serverSocket.accept(); // blocks until client connects
-                 System.out.println("Client connected: " + socket.getInetAddress());
-                 socket.getOutputStream().write(4242);
+                Socket socket = serverSocket.accept(); // blocks until client connects
+                System.out.println("Client connected: " + socket.getInetAddress());
+                ResponseThread responseThread = new ResponseThread();
+                responseThread.run(socket);
              }
 
          } catch (IOException e) {
