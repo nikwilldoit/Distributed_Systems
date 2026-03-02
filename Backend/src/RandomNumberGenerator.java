@@ -3,8 +3,8 @@ import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.LinkedList;
-import java.util.Queue;
 import java.util.Random;
+import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -13,15 +13,17 @@ import static java.lang.System.exit;
 public class RandomNumberGenerator {
 
 
-    private static LinkedList<Double> randomNumbersQueue = new LinkedList<Double>();
-    private static Lock randomNumbersLock = new ReentrantLock();
+    private static final LinkedList<Double> randomNumbersQueue = new LinkedList<>();
+    private static final Lock randomNumbersLock = new ReentrantLock();
+    private static final Condition randomNumbersCondition = randomNumbersLock.newCondition();
+
 
     public static void main(String[] args) {
         validateInput(args);
         int bufferSize = Integer.parseInt(args[0]);
         int port = Integer.parseInt(args[1]);
         initializeBuffer(bufferSize);
-
+        initializeServer(port);
 
     }
 
@@ -55,22 +57,41 @@ public class RandomNumberGenerator {
 
      private static void initializeBuffer(int bufferSize) {
          for (int i = 0; i < bufferSize; i++) {
-             randomNumbersQueue.addLast(new Random().nextDouble());
+             randomNumbersQueue.addLast(getRandomNumber());
          }
      }
 
-    class ResponseThread extends Thread {
+     public static Double getRandomNumber() {
+         return new Random().nextDouble();
+     }
 
-        void run(Socket socket) {
+    static class ResponseThread extends Thread {
+
+        private final Socket socket;
+
+        ResponseThread(Socket socket) {
+            this.socket = socket;
+        }
+
+        @Override
+        public void run()  {
             Double randomNumber;
+            //Quickily retrieve number
             randomNumbersLock.lock();
-            if(!randomNumbersQueue.isEmpty()){
+            try {
+                while (randomNumbersQueue.isEmpty()) {
+                    try {
+                        randomNumbersCondition.await();
+                    } catch (InterruptedException e) {
+                        //ignore, maintain only for debugging purposes
+                    }
+
+                }
                 randomNumber = randomNumbersQueue.removeFirst();
-            } else {
-                //fill numbers
-                randomNumber = randomNumbersQueue.removeFirst();
+            } finally {
+                randomNumbersLock.unlock();
             }
-            randomNumbersLock.unlock();
+            //quickly send number
             try {
                 OutputStream output = socket.getOutputStream();
                 String number = String.valueOf(randomNumber);
@@ -84,23 +105,36 @@ public class RandomNumberGenerator {
             } catch (IOException e) {
                 System.out.println("Error could not close socket.");
             }
+            //since generators tend to be slow ,retrieve number and add it when possible
+            randomNumber = getRandomNumber();
+            randomNumbersLock.lock();
+            try {
+                randomNumbersQueue.addLast(randomNumber);
+                randomNumbersCondition.signal(); // MUST be inside lock
+            } finally {
+                randomNumbersLock.unlock();
+            }
+
+
         }
+
+
     }
 
 
 
 
 
-     void initializeServer(int port){
+     private static void initializeServer(int port){
          try {
              ServerSocket serverSocket = new ServerSocket(port);
              System.out.println("Server started. Waiting for a client...");
 
              while(true) {
                 Socket socket = serverSocket.accept(); // blocks until client connects
-                System.out.println("Client connected: " + socket.getInetAddress());
-                ResponseThread responseThread = new ResponseThread();
-                responseThread.run(socket);
+                System.out.println("Client connected: " + socket.getInetAddress() + ":" + socket.getPort());
+                ResponseThread responseThread = new ResponseThread(socket);
+                new ResponseThread(socket).start();
              }
 
          } catch (IOException e) {
