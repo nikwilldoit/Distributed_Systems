@@ -2,6 +2,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.Random;
 import java.util.concurrent.locks.Condition;
@@ -95,7 +96,17 @@ public class RandomNumberGenerator {
             try {
                 OutputStream output = socket.getOutputStream();
                 String number = String.valueOf(randomNumber);
-                output.write(number.getBytes());
+                byte[] numberByteSequence = number.getBytes();
+                byte[] numberHashedByteSequence = Security.encryptSHA256(numberByteSequence);
+
+                byte[] merged = ByteBuffer
+                        .allocate(numberByteSequence.length + numberHashedByteSequence.length)
+                        .put(numberByteSequence)
+                        .put(numberHashedByteSequence)
+                        .array();
+
+
+                output.write(merged);
             } catch (IOException e) {
                 System.out.println("Error could not send append data to output stream.");
                 throw new RuntimeException(e);
@@ -133,7 +144,6 @@ public class RandomNumberGenerator {
              while(true) {
                 Socket socket = serverSocket.accept(); // blocks until client connects
                 System.out.println("Client connected: " + socket.getInetAddress() + ":" + socket.getPort());
-                ResponseThread responseThread = new ResponseThread(socket);
                 new ResponseThread(socket).start();
              }
 
@@ -141,7 +151,6 @@ public class RandomNumberGenerator {
              System.out.println("Error service could not be initialized to socket");
          }
      }
-
 
 
 
