@@ -28,6 +28,19 @@ public class RandomNumberGenerator {
 
     }
 
+    public static void initializeRandomNumberGeneratorServer(int bufferSize,int port) {
+        if  (bufferSize <= 100) {
+            throw new IllegalArgumentException("Buffer size must be greater than or equal to 100.Invalid Configuration defined");
+        }
+        if (port <= 0 || port > 65535) {
+            throw new IllegalArgumentException("Port must be greater than 0 and less than 65535.Invalid Configuration defined");
+        }
+        initializeBuffer(bufferSize);
+        initializeServer(port);
+    }
+
+
+
      private static void validateInput(String[] args) {
          if (args.length != 2) {
              System.out.println("Usage:  RandomNumberGenerator <Buffer_Size> <Port>");
@@ -149,6 +162,7 @@ public class RandomNumberGenerator {
 
          } catch (IOException e) {
              System.out.println("Error service could not be initialized to socket");
+             throw new RuntimeException(e);
          }
      }
 
