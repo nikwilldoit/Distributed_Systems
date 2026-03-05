@@ -1,27 +1,38 @@
 package domain;
 
+import java.util.HashMap;
+import java.util.InputMismatchException;
+
 public class Game {
 
     private String username;
     private float stars;
     private int votes;
-    private float minimumBet;
-    private float maximumBet;
     private Scale risk;
+    private Scale betLimit;
+    private float netProfits;
 
 
 
+    private static final float[] lowRiskBet = {0.0f , 0.0f , 0.0f , 0.1f , 0.5f , 1.0f , 1.1f , 1.3f , 2.0f , 2.5f};
+    private static final float[] mediumRiskBet = {0.0f , 0.0f , 0.0f , 0.0f , 0.0f , 0.5f , 1.0f , 1.5f , 2.5f , 3.5f};
+    private static final float[] highRiskBet = {0.0f , 0.0f , 0.0f , 0.0f , 0.0f , 0.0f , 0.0f , 1.0f , 2.0f , 6.5f};
 
 
 
-    public Game(String username, float stars, int votes, float minimumBet, float maximumBet, Scale risk) {
+    public Game(String username, float stars, int votes, float minimumBet,
+                float maximumBet, Scale risk,Scale betLimit, float netProfits) {
         this.username = username;
         this.stars = stars;
         this.votes = votes;
-        this.minimumBet = minimumBet;
-        this.maximumBet = maximumBet;
         this.risk = risk;
+        this.betLimit = betLimit;
+        this.netProfits = netProfits;
     }
+
+    public float getNetProfits() {return netProfits; }
+
+    public void setNetProfits(float netProfits) { this.netProfits = netProfits; }
 
     public Scale getRisk() {
         return this.risk;
@@ -29,22 +40,6 @@ public class Game {
 
     public void setRisk(Scale risk) {
         this.risk = risk;
-    }
-
-    public float getMaximumBet() {
-        return maximumBet;
-    }
-
-    public void setMaximumBet(float maximumBet) {
-        this.maximumBet = maximumBet;
-    }
-
-    public float getMinimumBet() {
-        return minimumBet;
-    }
-
-    public void setMinimumBet(float minimumBet) {
-        this.minimumBet = minimumBet;
     }
 
     public int getVotes() {
@@ -70,4 +65,46 @@ public class Game {
     public void setUsername(String username) {
         this.username = username;
     }
+
+    float getMinimumBet() {
+        switch (betLimit) {
+            case Scale.LOW -> {
+                return 0.1f;
+            }
+            case Scale.MEDIUM -> {
+                return 1f;
+            }
+            case Scale.HIGH -> {
+                return 5f;
+            }
+        }
+        //in case of invalid data input default to LOW
+        return 0.1f;
+    }
+    float getMaximumBet() {
+        switch (betLimit) {
+            case Scale.LOW -> {
+                return 100f;
+            }
+            case Scale.MEDIUM -> {
+                return 10000f;
+            }
+            case Scale.HIGH -> {
+                return 50000f;
+            }
+        }
+        //default to low in case of invalid variable
+        return 100f;
+    }
+
+    float play(float bet, double number) {
+        if(! (getMaximumBet() <= bet && bet <= getMaximumBet() )) {
+            throw new InputMismatchException();
+        }
+        // To be continued
+        return 0;
+    }
+
+
+
 }
