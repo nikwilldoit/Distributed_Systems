@@ -96,13 +96,42 @@ public class Game {
         //default to low in case of invalid variable
         return 100f;
     }
+    private int getJackPot() {
+        switch (risk) {
+            case LOW -> {
+                return 10;
+            }
+            case MEDIUM -> {
+                return 20;
+            }
+            case HIGH -> {
+                return 40;
+            }
+        }
+        return 10;
+    }
 
     float play(float bet, double number) {
-        if(! (getMaximumBet() <= bet && bet <= getMaximumBet() )) {
+        if(! (getMaximumBet() <= bet && bet <= getMaximumBet()) ) {
             throw new InputMismatchException();
         }
-        // To be continued
-        return 0;
+        if(number /100 == 0.0) {
+            return getJackPot()*bet;
+        }
+        int arrayVal = Math.toIntExact(Math.round(number * 10));
+
+        switch(risk) {
+            case LOW -> {
+                return lowRiskBet[arrayVal] * bet;
+            }
+            case MEDIUM -> {
+                return mediumRiskBet[arrayVal] * bet;
+            }
+            case HIGH -> {
+                return highRiskBet[arrayVal] * bet;
+            }
+        }
+        return lowRiskBet[arrayVal] * bet;
     }
 
 
