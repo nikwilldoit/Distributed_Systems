@@ -1,4 +1,6 @@
-package others;
+package org.utility.security;
+
+import org.mindrot.jbcrypt.BCrypt;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -7,6 +9,7 @@ import java.util.Arrays;
 public class Security {
 
     public static byte[] encryptSHA256(byte[] input) {
+
         try {
             MessageDigest cryptographer = MessageDigest.getInstance("SHA-256");
             return cryptographer.digest(input);
