@@ -39,4 +39,14 @@ public class Worker {
     public int getNumOfGames() {
         return gamesByName.size();
     }
+
+    public int getProfitPerGame(String gameName) {
+        for(var entry : gameStatsByName.entrySet()) {
+            if(entry.getKey().equals(gameName)) {
+                return ;
+            }
+        }
+    }
+
+
 }

@@ -58,6 +58,10 @@ public class Game {
         this.stars = total / this.noOfVotes;
     }
 
+    public int getProfit(){
+        return 0;
+    }
+
     public double getMaxBet() {
         return maxBet;
     }
