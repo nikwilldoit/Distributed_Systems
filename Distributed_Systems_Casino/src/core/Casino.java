@@ -1,7 +1,8 @@
-package others;
+package core;
 
 import Users.Manager;
-import Users.Player;
+import domain.Player;
+import domain.Provider;
 
 import java.util.ArrayList;
 import java.util.List;

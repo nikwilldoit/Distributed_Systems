@@ -1,4 +1,4 @@
-package Entity;
+package Entity.reducer;
 
 import Node.MasterNode;
 //import other.ReducerShuffler;

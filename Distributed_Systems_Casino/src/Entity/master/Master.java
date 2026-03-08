@@ -1,17 +1,15 @@
-package Entity;
+package Entity.master;
 
 import Node.WorkerNode;
 //import Wrappers.WorkerConfigWrapper;
 //import com.google.gson.Gson;
-import other.HashRing;
+import util.HashRing;
 
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Accepts incoming socket connections in a loop.

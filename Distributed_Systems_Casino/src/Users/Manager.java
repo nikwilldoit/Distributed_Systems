@@ -1,10 +1,11 @@
 package Users;
 
-import others.Game;
+import domain.Game;
+import domain.Player;
 
 public class Manager extends User {
 
-
+    private final String managerId;
     private String name;
     private String surname;
     private String email;
@@ -12,8 +13,9 @@ public class Manager extends User {
     private String IP;
     private String port;
 
-    public Manager(String name, String surname, String email, String password, String IP, String port) {
+    public Manager(String managerId, String name, String surname, String email, String password, String IP, String port) {
         super(name, surname, email, password, IP, port);
+        this.managerId = managerId;
     }
 
     public void addGame(Game game) {

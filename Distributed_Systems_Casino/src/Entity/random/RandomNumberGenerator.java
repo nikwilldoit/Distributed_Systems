@@ -1,4 +1,6 @@
-package others;
+package Entity.random;
+
+import domain.Security;
 
 import java.io.IOException;
 import java.io.OutputStream;

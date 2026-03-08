@@ -1,4 +1,4 @@
-package others;
+package domain;
 
 public enum RiskLevel {
     LOW,
