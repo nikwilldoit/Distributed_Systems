@@ -1,6 +1,5 @@
 package core;
 
-import Entity.worker.WorkerState;
 import domain.Bet;
 import domain.Game;
 import domain.GameFilters;

@@ -1,6 +1,6 @@
 package core;
 
-import Users.Manager;
+import Users.manager.Manager;
 import domain.Player;
 import domain.Provider;
 

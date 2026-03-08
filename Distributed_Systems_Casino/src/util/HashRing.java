@@ -1,6 +1,6 @@
 package util;
 
-import Node.WorkerNode;
+import Entity.worker.WorkerNode;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;

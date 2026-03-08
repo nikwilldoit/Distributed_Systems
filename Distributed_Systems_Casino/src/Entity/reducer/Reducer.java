@@ -1,6 +1,6 @@
 package Entity.reducer;
 
-import Node.MasterNode;
+import Entity.master.MasterNode;
 //import other.ReducerShuffler;
 
 import java.io.IOException;

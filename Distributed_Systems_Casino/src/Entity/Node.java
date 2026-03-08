@@ -1,4 +1,4 @@
-package Node;
+package Entity;
 
 import java.io.Serial;
 import java.io.Serializable;

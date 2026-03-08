@@ -1,4 +1,6 @@
-package Node;
+package Entity.master;
+
+import Entity.Node;
 
 import java.io.Serial;
 

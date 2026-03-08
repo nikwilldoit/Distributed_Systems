@@ -1,6 +1,7 @@
 package Entity.master;
 
-import Node.WorkerNode;
+import Entity.reducer.ReducerNode;
+import Entity.worker.WorkerNode;
 //import Wrappers.WorkerConfigWrapper;
 //import com.google.gson.Gson;
 import util.HashRing;
@@ -22,8 +23,8 @@ public class Master extends Entity {
     private String worker_config_filepath;
     private List<WorkerNode> workersList;
     public HashRing workers;                        //Ο Master χρησιμοποιεί έναν HashRing για να κάνει κατανομή ""casino games"" στους Workers
-    private final int VIRTUAL_NODES_OF_WORKER = 2;  /*Για κάθε Worker, ο HashRing βάζει δύο αντίγραφα του worker στο δαχτυλίδι,
-                                                      για να έχουμε καλύτερη κατανομή φορτίου.*/
+    private final int VIRTUAL_NODES_OF_WORKER = 2;
+    private ReducerNode reducer;
 
 
     //Constructor
